@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>말해요 - 의사소통 보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F2F1FF;
+    --bg-soft: #FBFAFF;
+    --ink: #2B2A4C;
+    --ink-soft: #6E6C8F;
+    --violet: #6C5CE7;
+    --violet-dark: #5A47D6;
+    --white: #FFFFFF;
+
+    --card-water: #34AEE0;
+    --card-toilet: #F4B740;
+    --card-hungry: #F17452;
+    --card-hurt: #E85D8A;
+    --card-play: #3FBE84;
+
+    --radius-lg: 28px;
+    --radius-md: 18px;
+    --shadow: 0 10px 24px rgba(43,42,76,0.12);
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Noto Sans KR', sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  .app{
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px 20px 40px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    gap: 18px;
+  }
+
+  /* ---------- 상단바 ---------- */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .logo{
+    font-family:'Jua', sans-serif;
+    font-weight:400;
+    font-size: clamp(28px, 5vw, 38px);
+    color: var(--violet-dark);
+    margin:0;
+  }
+  .icon-btn{
+    width:52px; height:52px;
+    border-radius:50%;
+    border:none;
+    background: var(--white);
+    box-shadow: var(--shadow);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    color: var(--violet-dark);
+    flex-shrink:0;
+    transition: transform .15s ease;
+  }
+  .icon-btn:hover{ transform: scale(1.06); }
+  .icon-btn:active{ transform: scale(0.94); }
+  .icon-btn:focus-visible{ outline: 3px solid var(--violet); outline-offset:3px; }
+
+  /* ---------- 말풍선 표시 영역 ---------- */
+  .display-bar{
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 16px 18px;
+    display:flex;
+    align-items:center;
+    gap: 16px;
+    min-height: 88px;
+  }
+
+  .speaker-icon{
+    width:60px; height:60px;
+    border-radius:50%;
+    background: var(--violet);
+    display:flex; align-items:center; justify-content:center;
+    gap:5px;
+    flex-shrink:0;
+  }
+  .speaker-icon .bar{
+    width:6px;
+    height:12px;
+    background: var(--white);
+    border-radius: 4px;
+  }
+  .speaker-icon.speaking .bar1{ animation: soundwave 0.7s ease-in-out infinite; }
+  .speaker-icon.speaking .bar2{ animation: soundwave 0.7s ease-in-out infinite -0.2s; }
+  .speaker-icon.speaking .bar3{ animation: soundwave 0.7s ease-in-out infinite -0.4s; }
+  @keyframes soundwave{
+    0%,100%{ height:12px; }
+    50%{ height:30px; }
+  }
+
+  .display-content{
+    flex:1;
+    min-width:0;
+  }
+  .display-text{
+    font-family:'Jua', sans-serif;
+    font-size: clamp(22px, 4vw, 32px);
+    line-height:1.3;
+    color: var(--ink);
+    word-break: keep-all;
+  }
+  .display-text.placeholder{
+    color: var(--ink-soft);
+    font-family:'Noto Sans KR', sans-serif;
+    font-size: 18px;
+  }
+
+  .chip-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .chip{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background: var(--bg);
+    border-radius: 999px;
+    padding: 6px 8px 6px 14px;
+    font-family:'Jua', sans-serif;
+    font-size:18px;
+  }
+  .chip button{
+    width:22px; height:22px;
+    border-radius:50%;
+    border:none;
+    background: var(--white);
+    color: var(--ink-soft);
+    font-size:12px;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .chip button:focus-visible{ outline: 2px solid var(--violet); }
+
+  .speak-btn{
+    flex-shrink:0;
+    border:none;
+    background: var(--violet);
+    color: var(--white);
+    font-family:'Jua', sans-serif;
+    font-size:18px;
+    padding: 12px 20px;
+    border-radius: 999px;
+    cursor:pointer;
+    box-shadow: 0 6px 14px rgba(108,92,231,0.35);
+    transition: transform .12s ease;
+  }
+  .speak-btn:hover{ transform: translateY(-2px); }
+  .speak-btn:active{ transform: translateY(0); }
+  .speak-btn:focus-visible{ outline: 3px solid var(--ink); outline-offset:2px; }
+
+  .clear-btn{
+    flex-shrink:0;
+    width:44px; height:44px;
+    border-radius:50%;
+    border: none;
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-size:18px;
+    cursor:pointer;
+  }
+  .clear-btn:focus-visible{ outline: 3px solid var(--violet); outline-offset:2px; }
+
+  /* ---------- 단어 카드 그리드 ---------- */
+  .card-grid{
+    flex:1;
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(8px, 2.5vw, 18px);
+    align-content:start;
+  }
+
+  .word-card{
+    border:none;
+    border-radius: var(--radius-lg);
+    background: var(--card-color, var(--violet));
+    color: var(--white);
+    min-height: clamp(92px, 24vw, 168px);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap: clamp(4px, 1.5vw, 10px);
+    cursor:pointer;
+    box-shadow: 0 10px 0 rgba(0,0,0,0.12), var(--shadow);
+    transition: transform .12s ease, box-shadow .12s ease;
+    padding: clamp(6px, 2vw, 12px);
+  }
+  .word-card:hover{ transform: translateY(-3px); }
+  .word-card:active,
+  .word-card.tapped{
+    transform: translateY(4px) scale(0.97);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.12), var(--shadow);
+  }
+  .word-card:focus-visible{
+    outline: 4px solid var(--ink);
+    outline-offset: 3px;
+  }
+  .card-emoji{
+    font-size: clamp(22px, 7vw, 60px);
+    line-height:1;
+  }
+  .card-text{
+    font-family:'Jua', sans-serif;
+    font-size: clamp(10px, 2.4vw, 23px);
+    text-align: center;
+    word-break: keep-all;
+    line-height: 1.25;
+    padding: 0 2px;
+  }
+
+  /* ---------- 설정 패널 ---------- */
+  .backdrop{
+    position:fixed; inset:0;
+    background: rgba(43,42,76,0.35);
+    opacity:0;
+    transition: opacity .2s ease;
+    z-index:20;
+  }
+  .backdrop.open{ opacity:1; }
+
+  .settings-panel{
+    position:fixed;
+    top:0; right:0;
+    height:100%;
+    width: min(360px, 88vw);
+    background: var(--bg-soft);
+    box-shadow: -12px 0 30px rgba(43,42,76,0.18);
+    z-index:21;
+    padding: 22px 22px 30px;
+    transform: translateX(100%);
+    transition: transform .25s ease;
+    display:flex;
+    flex-direction:column;
+    gap: 22px;
+  }
+  .settings-panel.open{ transform: translateX(0); }
+
+  .settings-header{
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .settings-header h2{
+    font-family:'Jua', sans-serif;
+    font-weight:400;
+    font-size:24px;
+    margin:0;
+    color: var(--violet-dark);
+  }
+
+  .setting-block{
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+  .setting-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .setting-row label{
+    font-size:16px;
+    font-weight:500;
+  }
+  .beta-tag{
+    display:inline-block;
+    font-size:11px;
+    background: var(--violet);
+    color:var(--white);
+    padding:2px 7px;
+    border-radius:999px;
+    margin-left:6px;
+    vertical-align: middle;
+  }
+  .setting-desc{
+    font-size:13px;
+    color: var(--ink-soft);
+    margin: 10px 0 0;
+    line-height:1.5;
+  }
+
+  .toggle-switch{
+    position:relative;
+    width:48px; height:28px;
+    -webkit-appearance:none; appearance:none;
+    background: #D9D6F5;
+    border-radius:999px;
+    cursor:pointer;
+    outline-offset:3px;
+    flex-shrink:0;
+  }
+  .toggle-switch::before{
+    content:"";
+    position:absolute;
+    top:3px; left:3px;
+    width:22px; height:22px;
+    background:var(--white);
+    border-radius:50%;
+    transition: left .15s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .toggle-switch:checked{ background: var(--violet); }
+  .toggle-switch:checked::before{ left:23px; }
+
+  .volume-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-top:14px;
+  }
+  input[type="range"]{
+    flex:1;
+    accent-color: var(--violet);
+    height: 6px;
+  }
+  #volumeValue{
+    font-family:'Jua', sans-serif;
+    color: var(--violet-dark);
+    min-width: 34px;
+    text-align:center;
+  }
+
+  .note{
+    font-size:12px;
+    color: var(--ink-soft);
+    line-height:1.6;
+    margin-top:auto;
+  }
+
+  @media (max-width: 420px){
+    .app{ padding: 14px 10px 30px; gap: 12px; }
+  }
+
+  @media (max-width: 520px){
+    .display-bar{ flex-wrap:wrap; }
+    .speak-btn{ order:3; width:100%; text-align:center; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .speaker-icon.speaking .bar1,
+    .speaker-icon.speaking .bar2,
+    .speaker-icon.speaking .bar3{ animation: none; height:24px; }
+    .word-card{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="topbar">
+    <h1 class="logo">말해요</h1>
+    <button id="settingsBtn" class="icon-btn" aria-label="설정 열기">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M19.4 13.5c.04-.5.04-1 0-1.5l1.6-1.2-1.5-2.6-1.9.6a7.6 7.6 0 0 0-1.3-.75L16 6h-3l-.3 1.95a7.6 7.6 0 0 0-1.3.75l-1.9-.6-1.5 2.6 1.6 1.2a6 6 0 0 0 0 1.5l-1.6 1.2 1.5 2.6 1.9-.6c.4.32.84.57 1.3.75L11 20h3l.3-1.95a7.6 7.6 0 0 0 1.3-.75l1.9.6 1.5-2.6-1.6-1.2Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </header>
+
+  <section class="display-bar">
+    <div class="speaker-icon" id="speakerIcon">
+      <span class="bar bar1"></span>
+      <span class="bar bar2"></span>
+      <span class="bar bar3"></span>
+    </div>
+
+    <div class="display-content">
+      <div id="displayText" class="display-text placeholder">카드를 눌러서 말해보세요</div>
+      <div id="chipRow" class="chip-row" hidden></div>
+    </div>
+
+    <button id="speakSentenceBtn" class="speak-btn" hidden>말하기</button>
+    <button id="clearBtn" class="clear-btn" aria-label="지우기">✕</button>
+  </section>
+
+  <main class="card-grid" id="cardGrid"></main>
+</div>
+
+<div class="backdrop" id="backdrop" hidden></div>
+<aside class="settings-panel" id="settingsPanel" hidden aria-label="설정">
+  <div class="settings-header">
+    <h2>설정</h2>
+    <button id="closeSettings" class="icon-btn" aria-label="설정 닫기" style="width:40px;height:40px;">✕</button>
+  </div>
+
+  <div class="setting-block">
+    <div class="setting-row">
+      <label for="modeToggle">문장 만들기 모드<span class="beta-tag">베타</span></label>
+      <input type="checkbox" id="modeToggle" class="toggle-switch">
+    </div>
+    <p class="setting-desc">켜면 여러 단어를 순서대로 눌러 문장을 만들고, [말하기] 버튼으로 한번에 들려줄 수 있어요.</p>
+  </div>
+
+  <div class="setting-block">
+    <div class="setting-row">
+      <label for="volumeSlider">음성 크기</label>
+    </div>
+    <div class="volume-row">
+      <input type="range" min="1" max="10" value="7" id="volumeSlider">
+      <span id="volumeValue">7</span>
+    </div>
+  </div>
+
+  <p class="note">sounds 폴더에 녹음 음성 파일이 있으면 그 파일을 재생하고, 없으면 기기에 내장된 한국어 음성(TTS)으로 자동 대체돼요.</p>
+</aside>
+
+<script>
+  // ============================================================
+  // 단어 데이터 - 나중에 단어를 바꾸거나 추가하고 싶을 때는
+  // 이 배열의 내용만 알려주면 새 파일로 만들어 드릴 수 있어요.
+  // ============================================================
+  const WORDS = [
+    { text: '도와주세요',          emoji: '🆘', color: '#FF6F59', audio: 'sounds/help.mp3' },
+    { text: '아파요, 불편해요',     emoji: '🤒', color: '#E85D8A', audio: 'sounds/hurt.mp3' },
+    { text: '화장실 가고 싶어요',   emoji: '🚻', color: '#3AA8E0', audio: 'sounds/toilet.mp3' },
+    { text: '목이 말라요',         emoji: '🥤', color: '#22B7C3', audio: 'sounds/thirsty.mp3' },
+    { text: '배가 고파요',         emoji: '🍽️', color: '#E3A63A', audio: 'sounds/hungry.mp3' },
+    { text: '반찬 더 주세요',      emoji: '🍱', color: '#F2984A', audio: 'sounds/more-food.mp3' },
+    { text: '같이 놀아요',         emoji: '🤝', color: '#3FBE84', audio: 'sounds/play-together.mp3' },
+    { text: '지금은 혼자 있고 싶어요', emoji: '🙅‍♀️', color: '#8D7AE0', audio: 'sounds/alone.mp3' },
+    { text: '미술 놀이 하고 싶어요', emoji: '🎨', color: '#FF8AC4', audio: 'sounds/art.mp3' },
+  ];
+
+  const cardGrid = document.getElementById('cardGrid');
+  const displayText = document.getElementById('displayText');
+  const chipRow = document.getElementById('chipRow');
+  const speakSentenceBtn = document.getElementById('speakSentenceBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const speakerIcon = document.getElementById('speakerIcon');
+
+  const settingsBtn = document.getElementById('settingsBtn');
+  const closeSettings = document.getElementById('closeSettings');
+  const settingsPanel = document.getElementById('settingsPanel');
+  const backdrop = document.getElementById('backdrop');
+  const modeToggle = document.getElementById('modeToggle');
+  const volumeSlider = document.getElementById('volumeSlider');
+  const volumeValue = document.getElementById('volumeValue');
+
+  let sentenceMode = false;
+  let sentenceWords = [];
+  let currentVolume = Number(volumeSlider.value) / 10;
+
+  // ---------- 카드 렌더링 ----------
+  WORDS.forEach((word) => {
+    const btn = document.createElement('button');
+    btn.className = 'word-card';
+    btn.style.setProperty('--card-color', word.color);
+    btn.setAttribute('aria-label', word.text + ' 말하기');
+    btn.innerHTML = `
+      <span class="card-emoji" aria-hidden="true">${word.emoji}</span>
+      <span class="card-text">${word.text}</span>
+    `;
+    btn.addEventListener('click', () => handleWordTap(word, btn));
+    cardGrid.appendChild(btn);
+  });
+
+  function handleWordTap(word, btnEl){
+    btnEl.classList.add('tapped');
+    setTimeout(() => btnEl.classList.remove('tapped'), 180);
+
+    if (sentenceMode) {
+      sentenceWords.push(word);
+      renderChips();
+    } else {
+      displayText.classList.remove('placeholder');
+      displayText.textContent = word.text;
+      playOne(word.text, word.audio);
+    }
+  }
+
+  function renderChips(){
+    displayText.hidden = true;
+    chipRow.hidden = false;
+    chipRow.innerHTML = '';
+
+    sentenceWords.forEach((w, idx) => {
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.innerHTML = `<span aria-hidden="true">${w.emoji}</span>${w.text}`;
+      const removeBtn = document.createElement('button');
+      removeBtn.setAttribute('aria-label', w.text + ' 빼기');
+      removeBtn.textContent = '✕';
+      removeBtn.addEventListener('click', () => {
+        sentenceWords.splice(idx, 1);
+        renderChips();
+      });
+      chip.appendChild(removeBtn);
+      chipRow.appendChild(chip);
+    });
+
+    speakSentenceBtn.hidden = sentenceWords.length === 0;
+  }
+
+  speakSentenceBtn.addEventListener('click', () => {
+    if (sentenceWords.length === 0) return;
+    playQueue(sentenceWords.slice());
+  });
+
+  clearBtn.addEventListener('click', resetDisplay);
+
+  function resetDisplay(){
+    sentenceWords = [];
+    chipRow.hidden = true;
+    chipRow.innerHTML = '';
+    speakSentenceBtn.hidden = true;
+    displayText.hidden = false;
+    displayText.classList.add('placeholder');
+    displayText.textContent = '카드를 눌러서 말해보세요';
+    stopAll();
+  }
+
+  // ---------- 음성 재생 (녹음 파일 우선, 없으면 TTS로 대체) ----------
+  let voices = [];
+  function loadVoices(){ voices = speechSynthesis.getVoices(); }
+  if ('speechSynthesis' in window) {
+    loadVoices();
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+
+  let currentAudio = null;
+
+  function stopAll(){
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    speakerIcon.classList.remove('speaking');
+  }
+
+  // 단어 하나를 재생. audioSrc 파일이 있으면 그걸 먼저 시도하고,
+  // 파일이 없거나(404) 재생에 실패하면 자동으로 TTS 음성으로 대체돼요.
+  function playOne(text, audioSrc, onDone){
+    stopAll();
+
+    if (audioSrc) {
+      const audio = new Audio(audioSrc);
+      currentAudio = audio;
+      let fellBack = false;
+      const fallback = () => {
+        if (fellBack) return;
+        fellBack = true;
+        speakTTS(text, onDone);
+      };
+      audio.addEventListener('error', fallback);
+      audio.addEventListener('play', () => speakerIcon.classList.add('speaking'));
+      audio.addEventListener('ended', () => {
+        speakerIcon.classList.remove('speaking');
+        if (currentAudio === audio) currentAudio = null;
+        if (onDone) onDone();
+      });
+      audio.volume = currentVolume;
+      audio.play().catch(fallback);
+    } else {
+      speakTTS(text, onDone);
+    }
+  }
+
+  // 문장 모드: 선택된 단어들의 음성을 순서대로 이어서 재생
+  function playQueue(items){
+    let i = 0;
+    function playNext(){
+      if (i >= items.length) return;
+      const item = items[i++];
+      playOne(item.text, item.audio, playNext);
+    }
+    playNext();
+  }
+
+  function speakTTS(text, onDone){
+    if (!('speechSynthesis' in window)) {
+      displayText.textContent = text + ' (이 브라우저는 음성 재생을 지원하지 않아요)';
+      if (onDone) onDone();
+      return;
+    }
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'ko-KR';
+    utter.rate = 0.95;
+    utter.pitch = 1.05;
+    utter.volume = currentVolume;
+
+    const koVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('ko'));
+    if (koVoice) utter.voice = koVoice;
+
+    utter.onstart = () => speakerIcon.classList.add('speaking');
+    utter.onend = () => { speakerIcon.classList.remove('speaking'); if (onDone) onDone(); };
+    utter.onerror = () => { speakerIcon.classList.remove('speaking'); if (onDone) onDone(); };
+
+    speechSynthesis.speak(utter);
+  }
+
+  // ---------- 설정 패널 ----------
+  function openSettings(){
+    settingsPanel.hidden = false;
+    backdrop.hidden = false;
+    requestAnimationFrame(() => {
+      settingsPanel.classList.add('open');
+      backdrop.classList.add('open');
+    });
+  }
+  function closeSettingsPanel(){
+    settingsPanel.classList.remove('open');
+    backdrop.classList.remove('open');
+    setTimeout(() => {
+      settingsPanel.hidden = true;
+      backdrop.hidden = true;
+    }, 250);
+  }
+
+  settingsBtn.addEventListener('click', openSettings);
+  closeSettings.addEventListener('click', closeSettingsPanel);
+  backdrop.addEventListener('click', closeSettingsPanel);
+
+  modeToggle.addEventListener('change', () => {
+    sentenceMode = modeToggle.checked;
+    resetDisplay();
+  });
+
+  volumeSlider.addEventListener('input', () => {
+    currentVolume = Number(volumeSlider.value) / 10;
+    volumeValue.textContent = volumeSlider.value;
+  });
+</script>
+
+</body>
+</html>
